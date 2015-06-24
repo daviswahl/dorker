@@ -8,22 +8,21 @@ abstract
     macro inherited
        Dorker::Docker::Client.endpoints[:{{@type.id.split("::").last.downcase.id}}] = {{@type.name}}
     end
-    macro define_more(t)
-      puts t
-    end
 
-    macro define_endpoint(endpoint, methods, block)
+    macro define_endpoint(endpoint, *methods)
      module {{endpoint.capitalize.id}}
-        {% for method in methods %}
-        {{block}}.call(RestMethod.parse({{method.upcase}}.to_s))
+       {% for method in {{methods}} %}
         def self.{{method.id}}
-          meth = Dorker::Docker::Form::RestMethod.parse({{method.id}})
+          client.{{method.id}}({{PATH}})
         end
-        {% end %}
+
+        def self.{{method.id}}
+          client.{{method.id}}({{PATH}}) { |headers, body, query| yield(headers, body, query) }
+        end
+       {% end %}
         def self.client
           Dorker::Docker.client
         end
-
       end
 
       def {{endpoint.id}}

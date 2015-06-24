@@ -15,7 +15,14 @@ describe Dorker::Docker::Client do
   end
 
   it "should respond to containers.index" do
-    #Dorker::Docker.client.containers.index.get
+    puts Dorker::Docker.client.containers.index.get do |headers, body, query|
+      query[:all] = "true"
+    end.body
+  end
+  it "should respond to containers.index" do
+    ##puts Dorker::Docker.client.containers.index.post do |headers, body, query|
+     # body << "hi"
+    #end
   end
 end
 
