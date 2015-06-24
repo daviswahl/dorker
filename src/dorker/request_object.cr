@@ -25,5 +25,4 @@ class Dorker::RequestObject
   def parse_accept(accept : String)
     log.debug("Parsing Accept #{accept}")
   end
-
 end

@@ -1,6 +1,6 @@
 require "./dorker/*"
 require "logger"
-
+require "./dorker/docker/*"
 
 module Dorker
   class DorkerLogger(T) < ::Logger(T)
@@ -36,4 +36,4 @@ def main
   Dorker::Server.get.run
 end
 
-main()
+#main()

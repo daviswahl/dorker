@@ -4,7 +4,6 @@ class Dorker::Controllers::Index < Dorker::Controller
 
   def get
     render(:body) do
-       
     end
   end
 
