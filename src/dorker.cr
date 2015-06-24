@@ -3,27 +3,36 @@ require "logger"
 
 
 module Dorker
-  def self.logger=(logger)
-    @@logger = logger
-  end
+  class DorkerLogger(T) < ::Logger(T)
 
-  def self.logger
-    @@logger
-  end
+    @class_formatter = ->(msg : String) { msg }
+    def class_formatter(&block : String -> String)
+      @class_formatter = block
+    end
 
-  def self.log
-    @@logger
+    def class_formatter(message : String) : String
+        @class_formatter.call(message)
+    end
+
+    def class_format(message)
+      msg = class_formatter(message)
+      class_formatter &->(msg : String){  msg }
+      msg
+    end
   end
-  # TODO Put your code here
 end
 
 def main
   Dorker::Server.new
   server = Dorker::Server.get
-  log = Logger.new(STDOUT)
+  log = Dorker::DorkerLogger.new(STDOUT)
   log.level = Logger::DEBUG
-  server.logger = log
 
+  log.formatter =  ::Logger::Formatter.new do |severity, datetime, progname, message, io|
+    io << severity << " " << log.class_format(message)
+  end
+
+  server.logger = log
   Dorker::Server.get.run
 end
 

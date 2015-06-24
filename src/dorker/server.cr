@@ -15,15 +15,20 @@ module Dorker
     end
 
     def run
+      log.info("Starting Server")
       server = HTTP::Server.new(8080) do |request|
         response = handle_request(request)
       end
       server.listen
     end
 
-    def handle_request(request) : HTTP::Response
-      self.log.debug("hi")
-      Dorker::Router.route(request)
+    def handle_request(request : HTTP::Request) : HTTP::Response
+      begin
+        Dorker::Router.route(request)
+      rescue e : Router::RoutingError
+        log.error(e)
+        HTTP::Response.not_found
+      end
     end
 
     def logger=(arg)
@@ -31,7 +36,7 @@ module Dorker
     end
 
     def logger
-      @logger || ::Logger.new(STDOUT)
+      @logger || Dorker::DorkerLogger.new(STDOUT)
     end
 
     def log
