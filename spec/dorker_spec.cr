@@ -1,29 +1,16 @@
 require "./spec_helper"
+require "spec"
 
-describe Dorker::Docker::Client do
-  # TODO: Write tests
-  it "endpoints" do
-    Dorker::Docker::Client.endpoints[:container].should eq Dorker::Docker::Forms::Containers
-  end
+def client
+  Dorker::Docker::SocketClient.new("/var/run/docker.sock")
+end
 
-  it "should respond to containers" do
-    Dorker::Docker.client.containers.class.should eq Dorker::Docker::Forms::Containers
-  end
-
-  it "should raise" do
-    expect_raises(Dorker::Docker::Client::UnknownEndpoint) { Dorker::Docker.client.butts }
+describe Dorker::Docker::SocketClient do
+  it "should take posts" do
+    c = Dorker::Docker::Forms::Containers
+    puts c.root.children.last.children.last.route
   end
 
-  it "should respond to containers.index" do
-    puts Dorker::Docker.client.containers.index.get do |headers, body, query|
-      query[:all] = "true"
-    end.body
-  end
-  it "should respond to containers.index" do
-    ##puts Dorker::Docker.client.containers.index.post do |headers, body, query|
-     # body << "hi"
-    #end
-  end
 end
 
 

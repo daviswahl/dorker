@@ -1,32 +1,73 @@
-abstract
-  class Dorker::Docker::Form
-    enum RestMethod
-    GET
-    POST
-    PUT
-    end
-    macro inherited
-       Dorker::Docker::Client.endpoints[:{{@type.id.split("::").last.downcase.id}}] = {{@type.name}}
-    end
+class Resource
+  getter component
+  getter parent
+  def id(&id)
+   @id = id
+  end
 
-    macro define_endpoint(endpoint, *methods)
-     module {{endpoint.capitalize.id}}
-       {% for method in {{methods}} %}
-        def self.{{method.id}}
-          client.{{method.id}}({{PATH}})
-        end
+  def id : String | Nil
+    @id.call || false
+  end
 
-        def self.{{method.id}}
-          client.{{method.id}}({{PATH}}) { |headers, body, query| yield(headers, body, query) }
-        end
-       {% end %}
-        def self.client
-          Dorker::Docker.client
-        end
-      end
-
-      def {{endpoint.id}}
-        {{endpoint.capitalize.id}}
-      end
+  def route
+    p = @parent
+    if p
+    "#{p.route}#{format_component}"
+    else
+      format_component
     end
+  end
+
+  def format_component
+   @id.call
+  end
+
+  def children
+    @children ||= [] of Resource
+  end
+
+  def initialize(component, parent = nil, &block : Resource -> )
+    @id = ->() { "" }
+    @component = component
+    @parent = parent
+    yield(self) if block
+  end
+
+  def root
+    p = @parent
+    @root = if p
+      p.root
+    else
+      self
+    end
+  end
 end
+
+macro id_component(component)
+ def {{component}}_id
+   @{{component.id}}_id
+ end
+
+ def set_{{component.id}}_id(id)
+   @{{component.id}}_id = id
+ end
+end
+
+macro resource(component, parent = nil, &block)
+ r = {% if block %}
+   Resource.new({{component}}, {{parent}}) {{block}}
+ {% else %}
+   Resource.new({{component}}, {{parent}})
+ {% end %}
+ {% if !parent %}
+   @@root=r
+ {% else %}
+   {{parent}}.children << (r)
+ {% end %}
+end
+
+  class Dorker::Docker::Form
+    def self.root
+      @@root
+    end
+  end
