@@ -1,13 +1,13 @@
-class Dorker::Docker::Forms::Containers < Dorker::Docker::Form
-  id_component(container)
-  resource("/container", nil) do |container|
-    resource("/id", container) do |id|
-      resource("/json", id) do |json|
-      end
+class Dorker::Docker::Resources::Containers < Resource
+ def self.component
+   "containers"
+ end
 
-      resource("/top", id) do |top|
-      end
+ resource(:id) do
+   resource("json") do
+   end
 
-    end
-  end
+   resource("top") do
+   end
+ end
 end

@@ -7,8 +7,8 @@ end
 
 describe Dorker::Docker::SocketClient do
   it "should take posts" do
-    c = Dorker::Docker::Forms::Containers
-    puts c.root.children.last.children.last.route
+    c = Dorker::Docker::Resources::Containers
+    puts c.new.id(1).top.route
   end
 
 end
