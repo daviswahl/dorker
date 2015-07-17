@@ -1,6 +1,6 @@
 require "http/client"
 require "socket/socket"
-
+require "cgi"
 class UnixClient < HTTP::Client
   def initialize(@host)
     @socket = UNIXSocket.new(@host)
@@ -34,8 +34,13 @@ class RestClient
   end
 
   def get(path : String)
-   c = UnixClient.new("/var/run/docker.sock")
-   resp = c.get("/containers/json")
-   puts resp.inspect
+    get(path, {} of Symbol => Value)
   end
+
+  def get(path : String, query : Hash)
+   c = UnixClient.new("/var/run/docker.sock")
+   string = path + hash_to_cgi(query)
+   resp = c.get(string)
+  end
+
 end

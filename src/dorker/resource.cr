@@ -1,4 +1,4 @@
-abstract class Resource
+abstract class Dorker::Resource
   abstract def self.component
 
   def route
@@ -7,7 +7,7 @@ abstract class Resource
 
   macro shared_resource(component, klass, &block)
 
-  class {{component.id.capitalize}} < {{klass}}
+  class {{component.id.capitalize}} < {{klass}} 
 
   	@@component = {{component}}
 
@@ -21,7 +21,7 @@ abstract class Resource
 
   		getter :component_id
 
-  		def initialize(parent, component_id)
+  		def initialize(parent : Resource, component_id)
   			@parent = parent
   			@component_id = component_id
   		end
@@ -36,7 +36,7 @@ abstract class Resource
 
     {% else %}
 
-     	def initialize(parent);
+     	def initialize(parent : Resource);
      	  @parent = parent
      	end
 
@@ -65,7 +65,7 @@ abstract class Resource
   end
 end
 
-abstract class Dorker::ClientResource < Resource
+abstract class ClientResource < Dorker::Resource
  macro has_client(client)
     def client
       {{client}}
@@ -77,21 +77,14 @@ abstract class Dorker::ClientResource < Resource
   end
 
   macro resource(component, &block)
-  	shared_resource({{component}}, Dorker::ClientResource) do
+  	shared_resource({{component}}, ClientResource) do
   		{{block.body}}
   	end
   end
 
   macro get(&block)
-  	 def get
-  		 get({} of String => Value)
-  	 end
-     def get(params : Hash)
-     	  new_param = {} of String => (String | Int32 | Bool) 
-     	  params.each do |k, v| 
-     	  	new_param[k.to_s] = v.to_s
-     	  end
-     	  resp = self.client.get(route, new_param, nil, nil) 
+     def get(params : Hash | Nil)
+     	  resp = self.client.get(route)
      	  {{block.body}}
      end
    end

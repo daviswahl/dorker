@@ -1,4 +1,4 @@
-class Dorker::Docker::Resources::Containers < Dorker::ClientResource
+class Dorker::Docker::Resources::Containers < ClientResource
  def self.component
    "containers"
  end
@@ -11,7 +11,7 @@ class Dorker::Docker::Resources::Containers < Dorker::ClientResource
 
    resource("top") do
      get() do |resp|
-       resp
+       puts resp.body
      end
    end
  end

@@ -8,4 +8,4 @@ end
 
 
 require "./*"
-require "./forms/*"
+require "./resources/all"
