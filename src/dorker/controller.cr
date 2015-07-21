@@ -1,7 +1,15 @@
 require "./logger"
+require "http"
+require "./html/*"
+class Thunk
+  macro method_missing(name, args, block) 
+    puts "woops"
+  end
+end
+
 abstract class Dorker::Controller
   include Dorker::Logger
-
+  @headers :: HTTP::Headers
   macro define_rest_endpoints(*endpoints)
     enum Endpoint
       {% for endpoint in endpoints %}
@@ -21,15 +29,18 @@ abstract class Dorker::Controller
       end
     end
   end
-
+  property :headers, :status, :body
+  
   def initialize(req : Dorker::RequestObject)
     @request = req
+    @headers = HTTP::Headers.new
+    @status = 200
+    @body = ""
   end
 
-  def self.dispatch(req : Dorker::RequestObject)
-    controller = new(req)
-    controller.dynamic_dispatcher
-    controller.to_response
+  def dispatch
+    dynamic_dispatcher
+    to_response
   end
 
   macro inherited
@@ -37,24 +48,17 @@ abstract class Dorker::Controller
   end
 
   def render(k : Symbol)
-    self.response[k] = String.build do |str|
-      str << yield
+    case k
+    when :body
+      @body = Dorker::HTML::Body.yield_into do |body|
+        yield(body)
+      end
     end
   end
 
-  def body=(str : String)
-   @body = str
-  end
-
-  def body
-    @body
-  end
-
-  def response
-    @response ||= {content: "text/html", body: "" } of Symbol => String
-  end
 
   def to_response : HTTP::Response
-    HTTP::Response.ok response[:content], response[:body]
+    headers.add("Content-type", "text/html") if !headers.has_key?("Content-type")
+    HTTP::Response.new(status, body, headers )
   end
 end

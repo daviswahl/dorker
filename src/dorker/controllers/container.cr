@@ -1,5 +1,5 @@
 class Dorker::Controllers::Container < Dorker::Controller
-  PATH = "/containers"
+  PATH = /\/containers/
 
   define_rest_endpoints(:get, :post)
 
