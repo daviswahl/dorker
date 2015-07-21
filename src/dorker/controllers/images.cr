@@ -3,9 +3,7 @@ class Dorker::Controllers::Images < Dorker::Controller
   define_rest_endpoints(:get) 
   def get
     render(:body) do |b|
-      b.div do 
-        text(Dorker::Docker::Resources::Images.new.json.get({ all: true}).first.to_s)
-      end
+      Dorker::HTML::Body.images(b, Dorker::Docker::Resources::Images.new.json.get({ all: true}))
     end
   end
 end

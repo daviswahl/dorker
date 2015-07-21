@@ -2,35 +2,56 @@ require "./builder2"
 module Dorker
   module HTML
     module Body
-
-      def self.head(builder)
-        builder.ul( {"class" => "nav nav-tabs"}) do 
-          builder.li( { "role" => "presentation", "class" => "active" } ) do
-            builder.a({ "href" => "/images"}) { text("images") }
+      def self.images(b, images)
+        b.table({"class" => "table" }) do
+          b.thead do 
+            b.tr do
+             b.td { text "#" }
+             b.td { text "id" }
+             b.td { text "label" }
+             b.td { text "created" }
+            end
           end
-          builder.li( { "role" => "presentation" } ) do
-            builder.a({ "href" =>  "/containers"}) { text("containers") }
+          b.tbody do
+            images.each_with_index do |img,i|
+              b.tr do 
+                b.th({ "scope" => "row" }) { text i.to_s } 
+                b.td { text img.id.to_s } 
+                b.td { text img.labels.to_s }
+                b.td { text img.created.to_s  }
+              end
+            end
+          end
+        end
+      end
+      def self.head(b)
+        b.ul( {"class" => "nav nav-tabs"}) do 
+          b.li( { "role" => "presentation", "class" => "active" } ) do
+            b.a({ "href" => "/images"}) { text("images") }
+          end
+          b.li( { "role" => "presentation" } ) do
+            b.a({ "href" =>  "/containers"}) { text("containers") }
           end
         end
       end
       def self.yield_into(&blk) 
-        builder = HTML::Builder.new
-        builder.doctype 
-        builder.html do
-          builder.head do
-            builder.link({ "rel" => "stylesheet",
+        b = HTML::Builder.new
+        b.doctype 
+        b.html do
+          b.head do
+            b.link({ "rel" => "stylesheet",
                           "href" => "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" }){}
 
-            builder.link({ "rel" => "stylesheet",
+            b.link({ "rel" => "stylesheet",
                           "href" => "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css" }){}
 
-            builder.script({ "src" => "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"}){}
-            builder.link({"rel" => "stylesheet", "type"=>"text/css", "href"=>"public/dorker.css"}){}
+            b.script({ "src" => "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"}){}
+            b.link({"rel" => "stylesheet", "type"=>"text/css", "href"=>"public/dorker.css"}){}
           end 
-          builder.body do
-            builder.div({"class" => "container"}) do
-              head(builder)
-              yield(builder)
+          b.body do
+            b.div({"class" => "container"}) do
+              head(b)
+              yield(b)
             end
           end
       end

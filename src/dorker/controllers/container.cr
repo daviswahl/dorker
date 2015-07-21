@@ -3,9 +3,9 @@ class Dorker::Controllers::Container < Dorker::Controller
 
   define_rest_endpoints(:get, :post)
 
+
   def get
-    render(:body) { }
-    render(:content) { "application/json" }
+    Dorker::Docker::Resources::Containers.new.json.get({ all: true})
   end
 
   def post

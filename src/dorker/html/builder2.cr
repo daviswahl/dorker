@@ -1,3 +1,4 @@
+require "html"
 
 struct HTML::Builder
   def initialize
@@ -10,7 +11,7 @@ struct HTML::Builder
   end
 
   {% for tag in %w(a b body div em h1 h2 h3 head link html i img input li ol p s script span strong table tbody td textarea
-   thead thead title tr u ul form) %}
+   thead th title tr u ul form) %}
     def {{tag.id}}(attrs = nil : Hash?)
       @str << "<{{tag.id}}"
       if attrs
