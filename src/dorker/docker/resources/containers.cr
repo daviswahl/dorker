@@ -2,11 +2,15 @@ require "json"
 
 class Dorker::Docker::Resources::Containers < ClientResource
   class ResponseItem
-    getter :created, :id, :labels
+    getter :id, :image
     def initialize(json)
       @data = json as Hash 
+      @image = @data["Image"]
+      @id = @data["Id"]
     end
+
     def to_s
+      @data.to_s
     end
   end
   class ResponseSet 
@@ -34,7 +38,7 @@ class Dorker::Docker::Resources::Containers < ClientResource
 
   resource("json") do
     get do
-      ResponseItem.new(resp)
+      ResponseSet.new(resp)
     end
   end
 

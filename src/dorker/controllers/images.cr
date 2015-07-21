@@ -1,7 +1,6 @@
 class Dorker::Controllers::Images < Dorker::Controller
-  PATH = /^\/images.*$/
-  define_rest_endpoints(:get) 
-  def get
+  PATH = /^\/images\/?(.*)$/
+  def respond(resp : GET.class)
     render(:body) do |b|
       Dorker::HTML::Body.images(b, Dorker::Docker::Resources::Images.new.json.get({ all: true}))
     end

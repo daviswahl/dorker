@@ -24,17 +24,38 @@ module Dorker
           end
         end
       end
-      def self.head(b)
+      def self.containers(b, images)
+        b.table({"class" => "table" }) do
+          b.thead do 
+            b.tr do
+             b.td { text "#" }
+             b.td { text "id" }
+             b.td { text "image" }
+            end
+          end
+          b.tbody do
+            images.each_with_index do |img,i|
+              b.tr do 
+                b.th({ "scope" => "row" }) { text i.to_s } 
+                b.td { text img.id.to_s } 
+                b.td { text img.image.to_s  }
+              end
+            end
+          end
+        end
+      end
+ 
+      def self.head(b, active = :images)
         b.ul( {"class" => "nav nav-tabs"}) do 
-          b.li( { "role" => "presentation", "class" => "active" } ) do
+          b.li( { "role" => "presentation", "class" => active == :images  ? "active" : "" } ) do
             b.a({ "href" => "/images"}) { text("images") }
           end
-          b.li( { "role" => "presentation" } ) do
+          b.li( { "role" => "presentation", "class" => active == :containers ? "active" : "" } ) do
             b.a({ "href" =>  "/containers"}) { text("containers") }
           end
         end
       end
-      def self.yield_into(&blk) 
+      def self.yield_into(active = :images, &blk)
         b = HTML::Builder.new
         b.doctype 
         b.html do
@@ -50,7 +71,7 @@ module Dorker
           end 
           b.body do
             b.div({"class" => "container"}) do
-              head(b)
+              head(b, active)
               yield(b)
             end
           end

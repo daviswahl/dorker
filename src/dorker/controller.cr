@@ -1,41 +1,50 @@
 require "./logger"
 require "http"
 require "./html/*"
-class Thunk
-  macro method_missing(name, args, block) 
-    puts "woops"
-  end
-end
 
 abstract class Dorker::Controller
   include Dorker::Logger
   @headers :: HTTP::Headers
-  macro define_rest_endpoints(*endpoints)
-    enum Endpoint
-      {% for endpoint in endpoints %}
-        {{ endpoint.id.upcase }}
+
+    macro define_rest_methods(*methods)
+      enum Method
+        {% for method in methods %}
+          {{ method.id.upcase }}
+        {% end %}
+      end
+      {% for method in methods %}
+        alias {{method.id.upcase}} = Method::{{method.id.upcase}}.class
       {% end %}
     end
 
-    def dynamic_dispatcher
-      endpoint = Endpoint.parse(@request.method)
-      case endpoint
-      {% for ep in endpoints %}
-      when Endpoint::{{ep.id.upcase}}
-        log.info("Dispatching with #{self.class}#{{ep.id}}")
-        {{ep.id}}
+    macro define_rest_endpoints(*endpoints)
+      enum Endpoint
+      {% for endpoint in endpoints %}
+        {{ endpoint.id }}
       {% end %}
-      else raise "Error"
-      end
     end
-  end
+    {% for endpoint in endpoints %}
+      alias {{endpoint.id}} = Method::{{endpoint.id}}.class
+    {% end %}
+    end
+   
+    define_rest_methods(:GET, :POST)
+
+    def dynamic_dispatcher
+      req = @request.method
+      meth = Method.parse(req)
+      puts @endpoint
+      log.info("Dispatching with #{self.class}#{req}")
+      respond(typeof(meth))
+    end
   property :headers, :status, :body
   
-  def initialize(req : Dorker::RequestObject)
+  def initialize(req : Dorker::RequestObject, match_data)
     @request = req
     @headers = HTTP::Headers.new
     @status = 200
     @body = ""
+    @endpoint = match_data
   end
 
   def dispatch
@@ -46,11 +55,13 @@ abstract class Dorker::Controller
   macro inherited
     Dorker::Router.routes[{{PATH}}] = {{@type}}
   end
-
+  def active
+    :images
+  end
   def render(k : Symbol)
     case k
     when :body
-      @body = Dorker::HTML::Body.yield_into do |body|
+      @body = Dorker::HTML::Body.yield_into(active) do |body|
         yield(body)
       end
     end

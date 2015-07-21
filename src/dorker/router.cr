@@ -11,10 +11,8 @@ module Dorker::Router
     path = req.path
     if path 
       routes.each do |r, v|
-        if r.match(path)
-          puts r
-          puts v
-          return v.new(req) 
+        if match_data = r.match(path)
+          return v.new(req, match_data) 
         end
       end
     end

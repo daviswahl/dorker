@@ -1,11 +1,13 @@
 class Dorker::Controllers::Container < Dorker::Controller
   PATH = /\/containers/
 
-  define_rest_endpoints(:get, :post)
-
-
-  def get
-    Dorker::Docker::Resources::Containers.new.json.get({ all: true})
+  def active
+    :containers
+  end
+  def respond(resp : GET.class) 
+    render(:body) do |b| 
+    Dorker::HTML::Body.containers(b, Dorker::Docker::Resources::Containers.new.json.get({ all: true}))
+    end
   end
 
   def post

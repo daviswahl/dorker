@@ -1,10 +1,9 @@
 
 
 class Dorker::Controllers::Public < Dorker::Controller
-  PATH = /^\/public\/.*$/
-  define_rest_endpoints(:get)
+  PATH = /^\/public\/(.*)$/
 
-  def get
+  def respond(resp : Dorker::Controllers::Public::GET.class) 
     path = @request.path
     if path
       path = "/home/rdu/dwahl/gits/dorker" + path

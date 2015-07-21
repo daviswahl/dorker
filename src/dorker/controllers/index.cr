@@ -1,8 +1,7 @@
 class Dorker::Controllers::Index < Dorker::Controller
   PATH = /^\/$/
-  define_rest_endpoints(:get, :post)
 
-  def get
+  def respond(resp : GET.class)
     render(:body) do |body|
       body.a do
         text("asdf")
