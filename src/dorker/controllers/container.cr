@@ -6,7 +6,7 @@ class Dorker::Controllers::Container < Dorker::Controller
   end
   def respond(resp : GET.class) 
     render(:body) do |b| 
-    Dorker::HTML::Body.containers(b, Dorker::Docker::Resources::Containers.new.json.get({ all: true}))
+      Dorker::HTML::Body.containers(b, Dorker::Docker::Resources::Containers.new.json.get())
     end
   end
 

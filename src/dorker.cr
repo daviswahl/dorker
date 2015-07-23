@@ -36,4 +36,4 @@ def main
   Dorker::Server.get.run
 end
 
-main()
+#main()

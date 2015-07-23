@@ -1,55 +1,32 @@
 require "json"
 
-class Dorker::Docker::Resources::Containers < ClientResource
-  class ResponseItem
-    getter :id, :image
-    def initialize(json)
-      @data = json as Hash 
-      @image = @data["Image"]
-      @id = @data["Id"]
-    end
+class Dorker::Docker::Resources::Containers < Dorker::ClientResource
 
-    def to_s
-      @data.to_s
-    end
-  end
-  class ResponseSet 
-
-    include Enumerable(ResponseItem)
-
-    def initialize(json)
-      @data = json.map { |j| ResponseItem.new(j)  } 
-    end
-
-    def each
-      data = @data
-      if data
-        data.each do |e|
-          yield e
-        end
-      end
-    end
-  end
+  has_client Dorker::Docker::SocketClient.new("/var/run/docker.sock")
   def self.component
     "containers"
   end
-
-  has_client Dorker::Docker::SocketClient.new("/var/run/docker.sock")
-
-  resource("json") do
-    get do
-      ResponseSet.new(resp)
-    end
+  def buffer
+    ret = @buffer
+    @buffer = [] of String
+    ret
+  end
+  def initialize(@id)
+    @c = UnbufferedChannel(String).new
+    @buffer = [] of String
   end
 
-  resource(:id) do
-    resource("json") do
-    end
-
-    resource("top") do
-      get() do |resp|
-        puts resp.body
+  def attach
+    path = route + "/" +  @id + "/attach"
+    resp = client.stream(path, {  "stdin" : "1", "stream" : "1" })
+    spawn do 
+      resp.each_line do |l|
+        puts "got line"
+        @c.send(l)    
       end
+    end
+    spawn do
+      @buffer << @c.receive
     end
   end
 end

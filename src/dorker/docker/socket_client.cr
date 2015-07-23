@@ -10,9 +10,17 @@ class Dorker::Docker::SocketClient < HTTP::Client
       puts "#{{{method}}} #{path}"
       req = new_request({{method.upcase}}.to_s, path, headers, body)
       resp = exec(req)
-      parse_response(resp)
     end
 
+    def stream(path, params : Hash, headers = nil, body = nil)
+      h = HTTP::Headers.new
+      string = path + hash_to_cgi(params)
+      h.add("Connection", "Upgrade") 
+      h.add("Upgrade","websocket")
+      req = new_request("POST", string, h,  body)
+      req.to_io(@socket)
+      @socket
+    end
     def {{method.id}}(path, params : Hash, headers = nil, body = nil)
       string = path + hash_to_cgi(params)
       self.{{method.id}}(string, headers, body)
