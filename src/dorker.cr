@@ -26,7 +26,7 @@ def main
   Dorker::Server.new
   server = Dorker::Server.get
   log = Dorker::DorkerLogger.new(STDOUT)
-  log.level = Logger::DEBUG
+  log.level = Logger::INFO
 
   log.formatter =  ::Logger::Formatter.new do |severity, datetime, progname, message, io|
     io << severity << " " << log.class_format(message)

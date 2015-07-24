@@ -9,6 +9,7 @@ module Dorker::Router
 
   def self.find_route(req : Dorker::RequestObject)
     path = req.path
+    puts routes
     if path 
       routes.each do |r, v|
         if match_data = r.match(path)
@@ -29,7 +30,7 @@ module Dorker::Router
       raise RoutingError.new "Error routing to #{req.path}"
       return HTTP::Response.not_found
     elsif controller && !controller.is_a?(Bool) 
-      log.info "Routing: #{req.method} \"#{req.path}\" AS #{req.headers["Accept"]}"
+      log.info "Routing: #{req.method} \"#{req.path}\" AS #{req.headers["Accept"]} to #{controller}"
       return controller.dispatch
     end
     HTTP::Response.not_found

@@ -39,7 +39,7 @@ module Dorker
                 b.th({ "scope" => "row" }) { text i.to_s } 
                 b.td { text img["Id"].to_s } 
                 b.td { text img["Image"].to_s  }
-                b.td { b.a( { "href" => "/containers/#{img["Id"]}/attach"} ) { text "attach" } }
+                b.td { b.a( { "href" => "/container/#{img["Id"]}/attach"} ) { text "attach" } }
               end
             end
           end

@@ -1,7 +1,7 @@
 class Dorker::Controllers::Index < Dorker::Controller
   PATH = /^\/$/
-
-  def respond(resp : GET.class)
+  endpoints :index
+  def respond(resp)
     render(:body) do |body|
       body.a do
         text("asdf")
