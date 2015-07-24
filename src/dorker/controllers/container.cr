@@ -27,7 +27,7 @@ end
   
 class Dorker::Controllers::Container < Dorker::Controller
   PATH = /\/container\/(?<id>\w*)(?:\/(?<method>\w*))?$/
-  endpoints(:attach, :read, :start, :show)
+  endpoints(:attach, :read, :start, :show, :detach)
   
   action Start, GET do |id|
     Dorker::Docker::Resources::Containers.new(id)
@@ -58,6 +58,10 @@ class Dorker::Controllers::Container < Dorker::Controller
     render(:body) do |b|
       Dorker::HTML::Body.attach(b, id)
     end
+  end
+
+  action Detach, GET do |id|
+    h = Dorker::Docker::Resources::Containers.new(id).detach
   end
 
   action Read, GET do |id|

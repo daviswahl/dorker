@@ -1,6 +1,6 @@
 class UnbufferedChannel2(T) < UnbufferedChannel(T)
   def send(value : T)
-
+   puts "trying to send"
    while @has_value
       raise_if_closed
       @senders << Fiber.current
@@ -19,7 +19,16 @@ class UnbufferedChannel2(T) < UnbufferedChannel(T)
       Scheduler.reschedule
     end
   end
-
+  def close
+    puts "closing"
+    @closed = true
+    Scheduler.enqueue @receivers
+    @receivers.clear
+  end
+  def closed?
+    puts "checking if closed"
+    @closed
+  end
   private def receive_impl
 
     until @has_value
@@ -42,9 +51,14 @@ class UnbufferedChannel2(T) < UnbufferedChannel(T)
 end
 class Dorker::Docker::Attach
   @@channel_hash = {} of String => Array(String)
+  @@close_procs = {} of String => Bool
 
   def self.channel_hash
     @@channel_hash 
+  end
+
+  def self.close_procs
+    @@close_procs
   end
 
   def self.client
@@ -53,33 +67,49 @@ class Dorker::Docker::Attach
 
   def self.attach(id)
     stream = client.stream("/containers/#{id}/attach", {  "stdout" : "1", "stream" : "1" })
-    channel = UnbufferedChannel2(String).new
+    channel = UnbufferedChannel(String).new
     channel_hash[id] = Array(String).new
     fiber = Fiber.new do
-      loop do
-        stream.each_line { |l| channel.send(l) }
-        Scheduler.yield
-      end
+      loop do 
+        sleep 1
+        if @@close_procs[id]
+          puts "brekaing fiber"
+          stream.close
+          break
+        end
+        channel.send stream.read_line 
+       end
     end
-    Scheduler.enqueue fiber
 
     fiber2 = Fiber.new do
       loop do
+        if @@close_procs[id]
+          puts "brekaing fiber"
+          channel_hash.delete(id)
+          break
+        end
         channel_hash[id] << channel.receive
-        Scheduler.yield
+        sleep 1
       end
     end
-    Scheduler.enqueue fiber2
-   end
+
+    @@close_procs[id] = false
+    Scheduler.enqueue [fiber, fiber2]
+  end
+
+  def self.detach(id)
+    @@close_procs[id] = true
+  end
 
   def self.read(id)
+    return [""] if !channel_hash[id]?
     ary = [] of String
     while line = channel_hash[id].shift?
      ary << line
     end
     ary
   end
-  
+   
   def self.active_attachments
     channel_hash.keys
   end

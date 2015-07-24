@@ -17,6 +17,10 @@ class Dorker::Docker::Resources::Containers < Dorker::ClientResource
     self.class.client.post("/containers/#{@id}/start")
   end
 
+  def detach
+    Dorker::Docker::Attach.detach(@id)
+  end
+  
   def attach
     Dorker::Docker::Attach.attach(@id)
   end
