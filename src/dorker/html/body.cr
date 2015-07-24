@@ -37,8 +37,9 @@ module Dorker
             images.each_with_index do |img,i|
               b.tr do 
                 b.th({ "scope" => "row" }) { text i.to_s } 
-                b.td { text img.id.to_s } 
-                b.td { text img.image.to_s  }
+                b.td { text img["Id"].to_s } 
+                b.td { text img["Image"].to_s  }
+                b.td { b.a( { "href" => "/containers/#{img["Id"]}/attach"} ) { text "attach" } }
               end
             end
           end
@@ -67,7 +68,7 @@ module Dorker
                           "href" => "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css" }){}
 
             b.script({ "src" => "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"}){}
-            b.link({"rel" => "stylesheet", "type"=>"text/css", "href"=>"public/dorker.css"}){}
+            #b.link({"rel" => "stylesheet", "type"=>"text/css", "href"=>"/public/dorker.css"}){}
           end 
           b.body do
             b.div({"class" => "container"}) do

@@ -12,14 +12,7 @@ abstract class Dorker::Resource
 end
 
 abstract class Dorker::ClientResource < Dorker::Resource
- macro has_client(client)
-    def client
-      {{client}}
-    end
+  def self.client
+    Dorker::Docker::SocketClient.new("/var/run/docker.sock")
   end
-
-  def client
-  	parent.client
-  end
-
 end
