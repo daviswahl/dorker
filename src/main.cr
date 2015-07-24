@@ -1,0 +1,4 @@
+require "./dorker"
+
+
+Dorker.main()

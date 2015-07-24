@@ -1,1 +1,8 @@
 body { }
+
+.attach-container {
+  width: 100%;
+  height: 400px;
+  color: #FFF;
+  background: #000;
+}

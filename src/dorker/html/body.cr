@@ -56,6 +56,10 @@ module Dorker
           end
         end
       end
+      def self.attach(b, id)
+        b.h3{ text id}
+        b.div({"class" => "attach-container" }) {}
+      end
       def self.yield_into(active = :images, &blk)
         b = HTML::Builder.new
         b.doctype 
@@ -68,7 +72,7 @@ module Dorker
                           "href" => "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css" }){}
 
             b.script({ "src" => "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"}){}
-            #b.link({"rel" => "stylesheet", "type"=>"text/css", "href"=>"/public/dorker.css"}){}
+            b.link({"rel" => "stylesheet", "type"=>"text/css", "href"=>"/public/dorker.css"}){}
           end 
           b.body do
             b.div({"class" => "container"}) do

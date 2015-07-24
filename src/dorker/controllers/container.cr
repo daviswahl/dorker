@@ -20,12 +20,20 @@ end
   
 class Dorker::Controllers::Container < Dorker::Controller
   PATH = /\/container\/(?<id>\w*)(?:\/(?<method>\w*))?$/
-  endpoints(:attach) 
+  endpoints(:attach, :read)
 
-  action Attach, GET do |thing|
-    puts "got #{thing}"
+  action Attach, GET do |id|
+    h = Dorker::Docker::Resources::Containers.new(id)
+    h.attach
+    render(:body) do |b|
+      Dorker::HTML::Body.attach(b, id)
+    end
   end
 
+  action Read, GET do |id|
+    h = Dorker::Docker::Resources::Containers.new(id)
+    puts h.read_attach
+  end
   def respond(resp : GET)
     puts "got"
   end

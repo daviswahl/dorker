@@ -24,7 +24,6 @@ describe Dorker::Docker::SocketClient do
     sleep 5
     puts h.read_attach
   end
-
 end
 
 

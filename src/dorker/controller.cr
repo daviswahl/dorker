@@ -6,12 +6,9 @@ abstract class Dorker::Controller
   include Dorker::Logger
 
   @headers :: HTTP::Headers
-  struct RestMethod
-  end
-  struct Get < RestMethod
-  end
-  struct Post < RestMethod
-  end
+  struct RestMethod; end
+  struct Get < RestMethod; end
+  struct Post < RestMethod; end
 
   alias GET = Get.class
   alias POST = Post.class
@@ -51,11 +48,12 @@ abstract class Dorker::Controller
          {{block.args.first}} = %id
          {{block.body}}
       end
-    {% else %} def respond(%m : {{name}}, %t : {{method}})
+    {% else %} def respond(%m : {{name.id.upcase}}, %t : {{method}})
          {{block.body}}
        end
     {% end %}
     {{ debug()}}
+
   end
 
  abstract def parse_endpoint
@@ -99,8 +97,8 @@ abstract class Dorker::Controller
     dynamic_dispatcher
     to_response
   end
-  macro endpoints(*endpoints)
 
+  macro endpoints(*endpoints)
     enum Endpoint
       {% for endpoint in endpoints %}
         {{endpoint.id.upcase}}
@@ -115,15 +113,14 @@ abstract class Dorker::Controller
           nil
         end
       end
-  
     end
 
     {% for endpoint in endpoints %}
-      struct {{endpoint.id.capitalize}}; end
+      record {{endpoint.id.capitalize}}
       alias {{endpoint.id.upcase}} = {{@type}}::{{endpoint.id.capitalize}}.class
     {% end %}
-
   end
+
   macro inherited
     macro def parse_endpoint(endpoint) : Endpoint
       Endpoint.parse(endpoint)
@@ -131,9 +128,11 @@ abstract class Dorker::Controller
  
     Dorker::Router.routes[{{PATH}}] = {{@type}}
   end
+
   def active
     :images
   end
+
   def render(k : Symbol)
     case k
     when :body
@@ -142,7 +141,6 @@ abstract class Dorker::Controller
       end
     end
   end
-
 
   def to_response : HTTP::Response
     headers.add("Content-type", "text/html") if !headers.has_key?("Content-type")
