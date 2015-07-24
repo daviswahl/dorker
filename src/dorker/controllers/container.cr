@@ -6,25 +6,55 @@ class Dorker::Controllers::Containers < Dorker::Controller
     :containers
   end
   action Index, GET do
-    render(:body) do |b| 
-      c = Dorker::Docker::Resources::Containers.json
-      Dorker::HTML::Body.containers(b,c)
-    end
-  end
-  #def respond(m : INDEX, resp : GET) 
- #end
+    json = {} of String => String
+    select = @params["display_all"]?.try &.first
 
-  def post
+    @context.active_tab = :containers
+    @context.active_attachment = nil
+    @context.containers_select_all = select ? select == "true" : false
+ 
+    Attr.modifier(:containers_select_all) do |attr, args, ctx|
+     ctx.containers_select_all ? attr.append_attr("properties", "checked") : attr
+    end
+
+    render(:body) do |b| 
+      json.merge!({"all" => select}) if select
+      c = Dorker::Docker::Resources::Containers.json(json)
+      Dorker::HTML::Body.containers(b,c,@context)
+    end
   end
 end
   
 class Dorker::Controllers::Container < Dorker::Controller
   PATH = /\/container\/(?<id>\w*)(?:\/(?<method>\w*))?$/
-  endpoints(:attach, :read)
+  endpoints(:attach, :read, :start, :show)
+  
+  action Start, GET do |id|
+    Dorker::Docker::Resources::Containers.new(id)
+  end
+
+  action Show, GET do |id|
+
+    @context.active_attachment = id    
+
+    Attr.modifier(:active_attachment) do |attr, args, ctx|
+      ctx.active_attachment == args ? attr.append_attr(:class, "active") : attr
+    end
+
+    render(:body) do |b|
+      Dorker::HTML::Body.attach(b, id)
+    end
+  end
+
 
   action Attach, GET do |id|
     h = Dorker::Docker::Resources::Containers.new(id)
     h.attach
+    @context.active_attachment = id    
+    Attr.modifier(:active_attachment) do |attr, args, ctx|
+      ctx.active_attachment == args ? attr.append_attr(:class, "active") : attr
+    end
+
     render(:body) do |b|
       Dorker::HTML::Body.attach(b, id)
     end
@@ -32,9 +62,7 @@ class Dorker::Controllers::Container < Dorker::Controller
 
   action Read, GET do |id|
     h = Dorker::Docker::Resources::Containers.new(id)
-    puts h.read_attach
-  end
-  def respond(resp : GET)
-    puts "got"
+    headers.add("Content-type", "application/json")
+    @body = { "resp" : h.read_attach }.to_json
   end
 end

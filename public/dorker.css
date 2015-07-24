@@ -5,4 +5,7 @@ body { }
   height: 400px;
   color: #FFF;
   background: #000;
+  text-align: end;
+  overflow: scroll;
+  vertical-align: bottom;
 }

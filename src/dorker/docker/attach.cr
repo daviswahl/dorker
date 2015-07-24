@@ -79,4 +79,12 @@ class Dorker::Docker::Attach
     end
     ary
   end
+  
+  def self.active_attachments
+    channel_hash.keys
+  end
+
+  def self.active_attachments?
+    channel_hash.keys.count > 0
+  end
 end

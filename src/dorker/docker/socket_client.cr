@@ -15,8 +15,8 @@ class Dorker::Docker::SocketClient < HTTP::Client
     end
 
     def {{method.id}}(path, params : Hash, headers = nil, body = nil)
-      string = path + hash_to_cgi(params)
-      self.{{method.id}}(string, headers, body)
+      path = path + hash_to_cgi(params) if params && params.keys[0]?
+      self.{{method.id}}(path, headers, body)
     end
   {% end %}
 

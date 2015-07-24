@@ -1,0 +1,19 @@
+require "./builder2"
+module Dorker
+  module HTML
+    module Head
+      def self.head(b, context)
+        b.ul( Attr{class: "nav nav-tabs"}.modify(:active_tab, :images)) do 
+          #g = attr{role: :presentation, class: "active"}
+          b.li( Attr{ role: "presentation" } ) do
+            b.a({ "href" => "/images"}){ text "images" }
+          end
+          b.li( Attr{ role: "presentation" } ) do
+            b.a( Attr{ href:  "/containers" } ) { text("containers") }
+          end
+        end
+      end
+    end
+  end
+end
+

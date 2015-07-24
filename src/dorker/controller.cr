@@ -1,6 +1,8 @@
 require "./logger"
 require "http"
 require "./html/*"
+require "./html/builder2"
+
 
 abstract class Dorker::Controller
   include Dorker::Logger
@@ -12,7 +14,7 @@ abstract class Dorker::Controller
 
   alias GET = Get.class
   alias POST = Post.class
-  
+    
   enum Method
     GET 
     POST
@@ -52,7 +54,6 @@ abstract class Dorker::Controller
          {{block.body}}
        end
     {% end %}
-    {{ debug()}}
 
   end
 
@@ -80,17 +81,19 @@ abstract class Dorker::Controller
     end
   end
   property :headers, :status, :body
-  
+
   def initialize(req : Dorker::RequestObject, match_data)
     @request = req
     @headers = HTTP::Headers.new
     @status = 200
     @body = ""
+    @params = req.params
     action = match_data["method"]? || "index"
     action = action ? parse_endpoint(action).meth : nil
     id = match_data["id"]?
     method = Method.parse(@request.method).rest
     @dispatch_tuple = Tuple.new(id, action,  method)
+    @context = RenderContext.new()
   end
 
   def dispatch
@@ -129,14 +132,15 @@ abstract class Dorker::Controller
     Dorker::Router.routes[{{PATH}}] = {{@type}}
   end
 
-  def active
-    :images
-  end
-
+   
   def render(k : Symbol)
+    Attr.modifier(:active_tab) do |attr, args, ctx|
+      ctx.active_tab == args ?  attr.append_attr(:class, "active") : attr
+    end
+
     case k
     when :body
-      @body = Dorker::HTML::Body.yield_into(active) do |body|
+      @body = Dorker::HTML::Body.yield_into(@context) do |body|
         yield(body)
       end
     end

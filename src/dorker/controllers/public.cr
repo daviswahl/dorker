@@ -1,5 +1,3 @@
-
-
 class Dorker::Controllers::Public < Dorker::Controller
   PATH = /^\/public\/(.*)$/
   endpoints(:index)
@@ -17,5 +15,4 @@ class Dorker::Controllers::Public < Dorker::Controller
       raise Exception.new("File does not exist")
     end
   end
-
 end

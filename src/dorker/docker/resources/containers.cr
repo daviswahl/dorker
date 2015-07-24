@@ -9,10 +9,13 @@ class Dorker::Docker::Resources::Containers < Dorker::ClientResource
   def initialize(@id)
   end
   
-  def self.json(params = {} of String | Symbol => String | Symbol | Int32)
-    client.class.parse_response(client.get("/containers/json"))
-
+  def self.json(params : Hash(String | Symbol, String | Symbol | Int32)?)
+    client.class.parse_response(client.get("/containers/json", params))
   end 
+
+  def start
+    self.class.client.post("/containers/#{@id}/start")
+  end
 
   def attach
     Dorker::Docker::Attach.attach(@id)
